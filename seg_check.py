@@ -1,5 +1,6 @@
 import wx
 import os
+import ctypes
 
 
 class SegWindow(wx.Frame):
@@ -62,4 +63,5 @@ if __name__ == '__main__':
     app = wx.App()
     frame = SegWindow(None)
     frame.Show(True)
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
     app.MainLoop()
