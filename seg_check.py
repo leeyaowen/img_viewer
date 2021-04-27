@@ -21,7 +21,6 @@ class SegPanel(wx.Panel):
         self.SetBackgroundColour((240, 240, 240))
 
         self.dirdlgBtn = wx.Button(self, label='Select Image', pos=(10, 20), size=(150, 30))
-        self.dirdlgBtn.Bind(wx.EVT_BUTTON, self.ondir)
         self.PhotoMaxSize = 500
         self.NewW = self.PhotoMaxSize
         self.NewH = self.PhotoMaxSize
@@ -30,6 +29,7 @@ class SegPanel(wx.Panel):
         self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY,
                                          wx.Bitmap(img),
                                          pos=(10, 70))
+        self.dirdlgBtn.Bind(wx.EVT_BUTTON, self.ondir)
         self.imageCtrl.Bind(wx.EVT_MOUSE_EVENTS, self.movemouseXY)
 
         self.setdpiAwarenessBtn = wx.Button(self, label='Set DPI Awareness', pos=(180, 20), size=(150, 30))
@@ -44,9 +44,9 @@ class SegPanel(wx.Panel):
 
         self.seglist = wx.TextCtrl(self, pos=(520, 70), size=(250, 500), style=wx.TE_MULTILINE)
         self.imageCtrl.Bind(wx.EVT_MOUSE_EVENTS, self.onclick)
+        self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.onclick)
 
         self.photoexist = False
-        self.labelList = list()
 
     def ondir(self, event):
         self.dlg = wx.FileDialog(self, 'Choose a file:',
@@ -66,10 +66,15 @@ class SegPanel(wx.Panel):
             print('no file!')
 
         try:
+            self.labelList = list()
             for i in range(0, 20):
                 self.npimg = self.npyfile[-1, :self.H, :self.W, i]
-                self.labelList.append(np.array(Image.fromarray(self.npimg).resize(size=(int(self.NewW),
-                                                                                        int(self.NewH)))))
+                self.labelList.append(np.array(Image.fromarray(self.npimg).resize((int(self.NewW),
+                                                                                   int(self.NewH)),
+                                                                                   Image.BICUBIC)))
+            print('W x H = %s x %s' % (self.NewW, self.NewH))
+            print('img.shape=%s' % str(self.labelList[0].shape))
+            print(self.labelList[1][211, 436])
         except Exception as e:
             print('img error!: %s' % e)
 
@@ -100,7 +105,7 @@ class SegPanel(wx.Panel):
             try:
                 X = int(self.labelX.GetLabel())
                 Y = int(self.labelY.GetLabel())
-                if X >= 0 & X <= int(self.NewW) & Y <= int(self.NewH) & Y >= 0:
+                if X >= 0 & X <= int(self.NewH) & Y <= int(self.NewW) & Y >= 0:
                     self.seglist.SetValue('(%s, %s)\n'
                                           'background: %s\n'
                                           'bicycle: %s\n'
@@ -122,8 +127,8 @@ class SegPanel(wx.Panel):
                                           'stopsign: %s\n'
                                           'parkingmeter: %s\n'
                                           'ignore: %s'
-                                          % (str(X),
-                                             str(Y),
+                                          % (self.labelX.GetLabel(),
+                                             self.labelY.GetLabel(),
                                              str(round(self.labelList[0][Y, X], 2)),
                                              str(round(self.labelList[1][Y, X], 2)),
                                              str(round(self.labelList[2][Y, X], 2)),
