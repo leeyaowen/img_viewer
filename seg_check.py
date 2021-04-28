@@ -76,6 +76,7 @@ class SegPanel(wx.Panel):
         self.dirdlgBtn.Bind(wx.EVT_BUTTON, self.ondir)
         self.preBtn.Bind(wx.EVT_BUTTON, self.onPrevious)
         self.nextBtn.Bind(wx.EVT_BUTTON, self.onNext)
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyPress)
         self.imageCtrl.Bind(wx.EVT_MOUSE_EVENTS, self.onclick)
         self.setdpiAwarenessBtn.Bind(wx.EVT_BUTTON, self.setdpiAwareness)
 
@@ -238,6 +239,17 @@ class SegPanel(wx.Panel):
     def onPrevious(self, event):
         if self.photoexist:
             self.previousPicture()
+
+    def onKeyPress(self, event):
+        keycode = event.GetKeyCode()
+        if keycode == wx.WXK_PAGEUP:
+            if self.photoexist:
+                self.nextPicture()
+        elif keycode == wx.WXK_PAGEDOWN:
+            if self.photoexist:
+                self.previousPicture()
+        self.imageCtrl.SetFocus()
+        event.Skip()
 
     def setdpiAwareness(self, event):
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
