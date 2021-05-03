@@ -25,8 +25,7 @@ labelname = ['background',
              'firehydrant',
              'stopsign',
              'parkingmeter',
-             'ignore',
-             ]
+             'ignore']
 
 
 class SegWindow(wx.Frame):
@@ -90,7 +89,7 @@ class SegPanel(wx.Panel):
         if self.dlg.ShowModal() == wx.ID_OK:
             self.filepath = self.dlg.GetPath()
             self.filename = os.path.basename(self.filepath)
-            print('You chose %s' % (os.path.splitext(self.filename)[0]))
+            # print('You chose %s' % (os.path.splitext(self.filename)[0]))
         self.dlg.Destroy()
         self.dirname = self.filepath[:-len(self.filename)]
         self.picPaths = glob.glob('%s*.png' % self.dirname)
@@ -114,8 +113,8 @@ class SegPanel(wx.Panel):
                                                                                    int(self.NewH)),
                                                                                    Image.BICUBIC)))
             self.npyexist = True
-            print('W x H = %s x %s' % (self.NewW, self.NewH))
-            print('img.shape=%s' % str(self.labelList[0].shape))
+            # print('W x H = %s x %s' % (self.NewW, self.NewH))
+            # print('img.shape=%s' % str(self.labelList[0].shape))
         except Exception as e:
             print('img error!: %s' % e)
 
@@ -134,12 +133,12 @@ class SegPanel(wx.Panel):
             else:
                 self.NewH = self.PhotoMaxSize
                 self.NewW = self.PhotoMaxSize * self.W / self.H
-        img = img.Scale(self.NewW, self.NewH)
+        img = img.Scale(int(self.NewW), int(self.NewH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.Refresh()
         self.photosize.SetLabel('photo size = %s x %s' % (str(int(self.NewW)), str(int(self.NewH))))
         self.photoexist = True
-        self.npyexist =False
+        self.npyexist = False
 
     def showfilename(self, filepath):
         self.namebox.SetLabel(os.path.basename(filepath))
